@@ -1,4 +1,4 @@
-# hlsproxy-docker
+# HLS Proxy en Docker
 
 Contenedor Docker para ejecutar HLS Proxy Server, un servidor de streaming HLS con capacidades de restreaming y gestión de EPG.
 

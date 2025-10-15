@@ -14,14 +14,38 @@ docker pull jopsis/hlsproxy:latest
 ### CI/CD Automático
 
 Este repositorio incluye un workflow de GitHub Actions que:
-- Se ejecuta automáticamente al hacer push a la rama `main`
-- Compila la imagen para las plataformas `linux/amd64` y `linux/arm64`
-- Publica la imagen en Docker Hub con el tag `latest`
+- **Push a main**: Compila y publica automáticamente con el tag `latest`
+- **Tags de versión**: Al crear un tag (ej: `v1.0.0`, `1.2.3`), compila y publica con los siguientes tags:
+  - Tag completo: `1.0.0`
+  - Major.Minor: `1.0`
+  - Major: `1`
+  - El tag original: `v1.0.0` (si incluye prefijo 'v')
+- Compila para las plataformas `linux/amd64` y `linux/arm64`
 - Utiliza caché de GitHub Actions para acelerar las compilaciones
 
-**Requisitos**: Para que el workflow funcione, debes configurar los siguientes secrets en tu repositorio de GitHub:
-- `DOCKER_USERNAME`: Tu usuario de Docker Hub
-- `DOCKER_PASSWORD`: Tu token de acceso de Docker Hub (o contraseña)
+#### Ejemplos de uso de tags
+
+```bash
+# Crear y publicar una nueva versión
+git tag v1.0.0
+git push origin v1.0.0
+
+# O sin prefijo 'v'
+git tag 1.0.0
+git push origin 1.0.0
+```
+
+Esto generará automáticamente en Docker Hub:
+- `jopsis/hlsproxy:1.0.0`
+- `jopsis/hlsproxy:1.0`
+- `jopsis/hlsproxy:1`
+- `jopsis/hlsproxy:latest` (solo si es desde main)
+
+#### Requisitos
+
+Para que el workflow funcione, debes configurar los siguientes secrets en tu repositorio de GitHub:
+- `DOCKER_HUB_USR`: Tu usuario de Docker Hub
+- `DOCKER_HUB_PWD`: Tu token de acceso de Docker Hub (o contraseña)
 
 ## Dockerfile
 

@@ -1,0 +1,49 @@
+{
+    "SERVER": {
+        "address": "0.0.0.0",
+        "port": 38050,
+        "password": "changeme",
+        "secret": "changeme",
+        "isAllowUsersWithAnyToken": true,
+        "isRestreamer": true
+    },
+    "playlists": [
+    ],
+    "epg": {
+        "tvGuideUrl": [
+            "https://raw.githubusercontent.com/davidmuma/EPG_dobleM/refs/heads/master/guiaiptv.xml",
+            "https://www.tdtchannels.com/epg/TV.xml.gz"
+        ],
+        "historyDays": 2,
+        "isAddUrlEpgToEXTINF": true
+    },
+    "clients": {
+    },
+    "serverName": "hlsproxy-server",
+    "maxSimultaneousStreamCountPerClientDefault": 100,
+    "isPlaylistAvailableFromOutside": true,
+    "isCacheInMemory": false,
+    "safeChunkSeq": 3,
+    "fastStartChunks": 4,
+    "fastStartChunksWhenPlaylistIsShort": 2,
+    "getTsChunkRetries": 4,
+    "retriesForError403": 4,
+    "isCatch404": false,
+    "retriesForError404": 4,
+    "delayForError404": 1500,
+    "getPlaylistRetries": 6,
+    "httpResponseStallTimeout": 45000,
+    "minDownloadPeriod": 9000,
+    "speedCheckMultiplier": 0.2,
+    "downloadSlotsAvailable": 4,
+    "maxDownloadSlotsAvailable": 10,
+    "preferableBandwidth": 800000,
+    "isReadChunksFromCacheDir": true,
+    "isXtreamCodesApiEnabled": true,
+    "isHtmlPlayerEnabled": true,
+    "RECORDING": {
+        "isEnabled": false
+    },
+    "pooler": []
+}
+

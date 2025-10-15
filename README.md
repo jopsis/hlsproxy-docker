@@ -4,12 +4,18 @@ Contenedor Docker para ejecutar HLS Proxy Server, un servidor de streaming HLS c
 
 ## Dockerfile
 
-El Dockerfile crea una imagen basada en Ubuntu que incluye:
+El Dockerfile crea una imagen **multiplataforma** basada en Ubuntu que soporta arquitecturas ARM64 y x86_64.
+
+### Características
 
 - **Base**: Ubuntu latest
 - **Puerto expuesto**: 38050
+- **Arquitecturas soportadas**:
+  - linux/arm64 (aarch64)
+  - linux/amd64 (x86_64)
 - **Dependencias instaladas**:
   - `wget`: Para descargar el binario de HLS Proxy
+  - `unzip`: Para descomprimir el archivo descargado
   - `mc`: Midnight Commander para gestión de archivos
   - `nano`: Editor de texto
   - `ffmpeg`: Para procesamiento de streams de video
@@ -19,10 +25,15 @@ El Dockerfile crea una imagen basada en Ubuntu que incluye:
 
 1. Actualiza e instala paquetes necesarios
 2. Configura la zona horaria a Europe/Berlin
-3. Descarga HLS Proxy v8.4.8 (linux-arm64) desde hls-proxy.com
-4. Limpia archivos temporales y caché para reducir el tamaño de la imagen
-5. Establece permisos de ejecución para `/opt/hls-proxy`
-6. Define el comando de inicio del contenedor
+3. **Detecta automáticamente la arquitectura del sistema** (`uname -m`)
+4. Descarga el binario correcto de HLS Proxy v8.4.8 según la arquitectura:
+   - ARM64: `hls-proxy-8.4.8.linux-arm64.zip`
+   - x86_64: `hls-proxy-8.4.8.linux-x64.zip`
+5. Descomprime y limpia archivos temporales para reducir el tamaño de la imagen
+6. Establece permisos de ejecución para `/opt/hls-proxy`
+7. Define el comando de inicio del contenedor
+
+La imagen detecta automáticamente la plataforma durante la construcción, por lo que no necesitas especificar manualmente qué versión descargar.
 
 ## Configuración: local.json
 
@@ -78,8 +89,33 @@ El archivo `local.json` contiene la configuración del servidor HLS Proxy:
 ## Uso
 
 ### Construcción de la imagen
+
+#### Construcción simple (plataforma actual)
 ```bash
 docker build -t hlsproxy .
+```
+
+#### Construcción multiplataforma con buildx
+Para construir imágenes para ambas arquitecturas (ARM64 y x86_64):
+
+```bash
+# Crear un builder multiplataforma (solo la primera vez)
+docker buildx create --name multiplatform --use
+
+# Construir para múltiples plataformas
+docker buildx build --platform linux/amd64,linux/arm64 -t tu-usuario/hlsproxy:latest .
+
+# Construir y subir a un registry
+docker buildx build --platform linux/amd64,linux/arm64 -t tu-usuario/hlsproxy:latest --push .
+```
+
+#### Construcción para una plataforma específica
+```bash
+# Solo para ARM64
+docker buildx build --platform linux/arm64 -t hlsproxy:arm64 --load .
+
+# Solo para x86_64/AMD64
+docker buildx build --platform linux/amd64 -t hlsproxy:amd64 --load .
 ```
 
 ### Ejecutar el contenedor

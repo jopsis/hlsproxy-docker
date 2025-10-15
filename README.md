@@ -2,6 +2,27 @@
 
 Contenedor Docker para ejecutar HLS Proxy Server, un servidor de streaming HLS con capacidades de restreaming y gestión de EPG.
 
+## Imágenes Docker Hub
+
+Las imágenes pre-construidas están disponibles en: **[https://hub.docker.com/r/jopsis/hlsproxy](https://hub.docker.com/r/jopsis/hlsproxy)**
+
+Para usar la imagen directamente desde Docker Hub:
+```bash
+docker pull jopsis/hlsproxy:latest
+```
+
+### CI/CD Automático
+
+Este repositorio incluye un workflow de GitHub Actions que:
+- Se ejecuta automáticamente al hacer push a la rama `main`
+- Compila la imagen para las plataformas `linux/amd64` y `linux/arm64`
+- Publica la imagen en Docker Hub con el tag `latest`
+- Utiliza caché de GitHub Actions para acelerar las compilaciones
+
+**Requisitos**: Para que el workflow funcione, debes configurar los siguientes secrets en tu repositorio de GitHub:
+- `DOCKER_USERNAME`: Tu usuario de Docker Hub
+- `DOCKER_PASSWORD`: Tu token de acceso de Docker Hub (o contraseña)
+
 ## Dockerfile
 
 El Dockerfile crea una imagen **multiplataforma** basada en Ubuntu que soporta arquitecturas ARM64 y x86_64.
@@ -119,8 +140,15 @@ docker buildx build --platform linux/amd64 -t hlsproxy:amd64 --load .
 ```
 
 ### Ejecutar el contenedor
+
+#### Usando imagen local
 ```bash
 docker run -d -p 38050:38050 -v $(pwd)/local.json:/opt/local.json hlsproxy
+```
+
+#### Usando imagen de Docker Hub
+```bash
+docker run -d -p 38050:38050 -v $(pwd)/local.json:/opt/local.json jopsis/hlsproxy:latest
 ```
 
 ## Notas de Seguridad

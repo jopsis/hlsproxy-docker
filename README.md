@@ -15,11 +15,7 @@ docker pull jopsis/hlsproxy:latest
 
 Este repositorio incluye un workflow de GitHub Actions que:
 - **Push a main**: Compila y publica automáticamente con el tag `latest`
-- **Tags de versión**: Al crear un tag (ej: `v1.0.0`, `1.2.3`), compila y publica con los siguientes tags:
-  - Tag completo: `1.0.0`
-  - Major.Minor: `1.0`
-  - Major: `1`
-  - El tag original: `v1.0.0` (si incluye prefijo 'v')
+- **Tags de versión**: Al crear un tag, compila y publica con el **nombre exacto del tag**
 - Compila para las plataformas `linux/amd64` y `linux/arm64`
 - Utiliza caché de GitHub Actions para acelerar las compilaciones
 
@@ -27,19 +23,13 @@ Este repositorio incluye un workflow de GitHub Actions que:
 
 ```bash
 # Crear y publicar una nueva versión
-git tag v1.0.0
-git push origin v1.0.0
-
-# O sin prefijo 'v'
-git tag 1.0.0
-git push origin 1.0.0
+git tag v8.4.8
+git push origin v8.4.8
 ```
 
 Esto generará automáticamente en Docker Hub:
-- `jopsis/hlsproxy:1.0.0`
-- `jopsis/hlsproxy:1.0`
-- `jopsis/hlsproxy:1`
-- `jopsis/hlsproxy:latest` (solo si es desde main)
+- `jopsis/hlsproxy:v8.4.8` (nombre exacto del tag)
+- `jopsis/hlsproxy:latest` (siempre actualizado desde main)
 
 #### Requisitos
 

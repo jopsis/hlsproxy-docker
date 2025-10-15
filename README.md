@@ -1,172 +1,174 @@
 # HLS Proxy en Docker
 
-Contenedor Docker para ejecutar HLS Proxy Server, un servidor de streaming HLS con capacidades de restreaming y gestión de EPG.
+Docker container to run HLS Proxy Server, an HLS streaming server with restreaming capabilities and EPG management.
 
-## Imágenes Docker Hub
+**[Documentación en Español](README_es.md)**
 
-Las imágenes pre-construidas están disponibles en: **[https://hub.docker.com/r/jopsis/hlsproxy](https://hub.docker.com/r/jopsis/hlsproxy)**
+## Docker Hub Images
 
-Para usar la imagen directamente desde Docker Hub:
+Pre-built images are available at: **[https://hub.docker.com/r/jopsis/hlsproxy](https://hub.docker.com/r/jopsis/hlsproxy)**
+
+To use the image directly from Docker Hub:
 ```bash
 docker pull jopsis/hlsproxy:latest
 ```
 
-### CI/CD Automático
+### Automated CI/CD
 
-Este repositorio incluye un workflow de GitHub Actions que:
-- **Push a main**: Compila y publica automáticamente con el tag `latest`
-- **Tags de versión**: Al crear un tag, compila y publica con el **nombre exacto del tag**
-- Compila para las plataformas `linux/amd64` y `linux/arm64`
-- Utiliza caché de GitHub Actions para acelerar las compilaciones
+This repository includes a GitHub Actions workflow that:
+- **Push to main**: Automatically builds and publishes with the `latest` tag
+- **Version tags**: When creating a tag, builds and publishes with the **exact tag name**
+- Builds for `linux/amd64` and `linux/arm64` platforms
+- Uses GitHub Actions cache to speed up builds
 
-#### Ejemplos de uso de tags
+#### Tag usage examples
 
 ```bash
-# Crear y publicar una nueva versión
+# Create and publish a new version
 git tag v8.4.8
 git push origin v8.4.8
 ```
 
-Esto generará automáticamente en Docker Hub:
-- `jopsis/hlsproxy:v8.4.8` (nombre exacto del tag)
-- `jopsis/hlsproxy:latest` (siempre actualizado desde main)
+This will automatically generate on Docker Hub:
+- `jopsis/hlsproxy:v8.4.8` (exact tag name)
+- `jopsis/hlsproxy:latest` (always updated from main)
 
-#### Requisitos
+#### Requirements
 
-Para que el workflow funcione, debes configurar los siguientes secrets en tu repositorio de GitHub:
-- `DOCKER_HUB_USR`: Tu usuario de Docker Hub
-- `DOCKER_HUB_PWD`: Tu token de acceso de Docker Hub (o contraseña)
+For the workflow to work, you must configure the following secrets in your GitHub repository:
+- `DOCKER_HUB_USR`: Your Docker Hub username
+- `DOCKER_HUB_PWD`: Your Docker Hub access token (or password)
 
 ## Dockerfile
 
-El Dockerfile crea una imagen **multiplataforma** basada en Ubuntu que soporta arquitecturas ARM64 y x86_64.
+The Dockerfile creates a **multiplatform** image based on Ubuntu that supports ARM64 and x86_64 architectures.
 
-### Características
+### Features
 
 - **Base**: Ubuntu latest
-- **Puerto expuesto**: 38050
-- **Arquitecturas soportadas**:
+- **Exposed port**: 38050
+- **Supported architectures**:
   - linux/arm64 (aarch64)
   - linux/amd64 (x86_64)
-- **Dependencias instaladas**:
-  - `wget`: Para descargar el binario de HLS Proxy
-  - `unzip`: Para descomprimir el archivo descargado
-  - `mc`: Midnight Commander para gestión de archivos
-  - `nano`: Editor de texto
-  - `ffmpeg`: Para procesamiento de streams de video
-  - `tzdata`: Configuración de zona horaria (Europe/Berlin)
+- **Installed dependencies**:
+  - `wget`: To download the HLS Proxy binary
+  - `unzip`: To decompress the downloaded file
+  - `mc`: Midnight Commander for file management
+  - `nano`: Text editor
+  - `ffmpeg`: For video stream processing
+  - `tzdata`: Timezone configuration (Europe/Berlin)
 
-### Proceso de construcción
+### Build process
 
-1. Actualiza e instala paquetes necesarios
-2. Configura la zona horaria a Europe/Berlin
-3. **Detecta automáticamente la arquitectura del sistema** (`uname -m`)
-4. Descarga el binario correcto de HLS Proxy v8.4.8 según la arquitectura:
+1. Updates and installs necessary packages
+2. Configures timezone to Europe/Berlin
+3. **Automatically detects system architecture** (`uname -m`)
+4. Downloads the correct HLS Proxy v8.4.8 binary based on architecture:
    - ARM64: `hls-proxy-8.4.8.linux-arm64.zip`
    - x86_64: `hls-proxy-8.4.8.linux-x64.zip`
-5. Descomprime y limpia archivos temporales para reducir el tamaño de la imagen
-6. Establece permisos de ejecución para `/opt/hls-proxy`
-7. Define el comando de inicio del contenedor
+5. Decompresses and cleans temporary files to reduce image size
+6. Sets execution permissions for `/opt/hls-proxy`
+7. Defines the container startup command
 
-La imagen detecta automáticamente la plataforma durante la construcción, por lo que no necesitas especificar manualmente qué versión descargar.
+The image automatically detects the platform during build, so you don't need to manually specify which version to download.
 
-## Configuración: local.json
+## Configuration: local.json
 
-El archivo `local.json` contiene la configuración del servidor HLS Proxy:
+The `local.json` file contains the HLS Proxy server configuration:
 
-### Servidor
+### Server
 ```json
 "SERVER": {
-    "address": "0.0.0.0",           // Escucha en todas las interfaces
-    "port": 38050,                   // Puerto del servidor
-    "password": "changeme",          // Contraseña de acceso (cambiar en producción)
-    "secret": "changeme",            // Secret key (cambiar en producción)
+    "address": "0.0.0.0",           // Listen on all interfaces
+    "port": 38050,                   // Server port
+    "password": "changeme",          // Access password (change in production)
+    "secret": "changeme",            // Secret key (change in production)
     "isAllowUsersWithAnyToken": true,
-    "isRestreamer": true             // Habilita funcionalidad de restreaming
+    "isRestreamer": true             // Enable restreaming functionality
 }
 ```
 
-### EPG (Guía de Programación Electrónica)
+### EPG (Electronic Program Guide)
 ```json
 "epg": {
-    "tvGuideUrl": [                  // URLs de las guías EPG
+    "tvGuideUrl": [                  // EPG guide URLs
         "https://raw.githubusercontent.com/davidmuma/EPG_dobleM/refs/heads/master/guiaiptv.xml",
         "https://www.tdtchannels.com/epg/TV.xml.gz"
     ],
-    "historyDays": 2,                // Días de historial EPG
+    "historyDays": 2,                // EPG history days
     "isAddUrlEpgToEXTINF": true
 }
 ```
 
-### Configuración de Streaming
-- `maxSimultaneousStreamCountPerClientDefault`: 100 streams simultáneos por cliente
-- `safeChunkSeq`: 3 chunks de seguridad
-- `fastStartChunks`: 4 chunks para inicio rápido
-- `getTsChunkRetries`: 4 reintentos para obtener chunks
-- `retriesForError403/404`: Reintentos para errores HTTP
+### Streaming Configuration
+- `maxSimultaneousStreamCountPerClientDefault`: 100 simultaneous streams per client
+- `safeChunkSeq`: 3 safety chunks
+- `fastStartChunks`: 4 chunks for fast start
+- `getTsChunkRetries`: 4 retries to get chunks
+- `retriesForError403/404`: Retries for HTTP errors
 - `httpResponseStallTimeout`: 45000ms timeout
 - `preferableBandwidth`: 800000 bps
 
-### Características Habilitadas
-- `isXtreamCodesApiEnabled`: true - API Xtream Codes activa
-- `isHtmlPlayerEnabled`: true - Reproductor HTML activo
-- `isPlaylistAvailableFromOutside`: true - Playlists accesibles externamente
-- `isCacheInMemory`: false - Cache en disco
-- `isReadChunksFromCacheDir`: true - Lectura de chunks desde caché
+### Enabled Features
+- `isXtreamCodesApiEnabled`: true - Xtream Codes API active
+- `isHtmlPlayerEnabled`: true - HTML player active
+- `isPlaylistAvailableFromOutside`: true - Playlists externally accessible
+- `isCacheInMemory`: false - Disk cache
+- `isReadChunksFromCacheDir`: true - Read chunks from cache
 
-### Grabación
+### Recording
 ```json
 "RECORDING": {
-    "isEnabled": false               // Grabación deshabilitada por defecto
+    "isEnabled": false               // Recording disabled by default
 }
 ```
 
-## Uso
+## Usage
 
-### Construcción de la imagen
+### Building the image
 
-#### Construcción simple (plataforma actual)
+#### Simple build (current platform)
 ```bash
 docker build -t hlsproxy .
 ```
 
-#### Construcción multiplataforma con buildx
-Para construir imágenes para ambas arquitecturas (ARM64 y x86_64):
+#### Multiplatform build with buildx
+To build images for both architectures (ARM64 and x86_64):
 
 ```bash
-# Crear un builder multiplataforma (solo la primera vez)
+# Create a multiplatform builder (first time only)
 docker buildx create --name multiplatform --use
 
-# Construir para múltiples plataformas
-docker buildx build --platform linux/amd64,linux/arm64 -t tu-usuario/hlsproxy:latest .
+# Build for multiple platforms
+docker buildx build --platform linux/amd64,linux/arm64 -t your-user/hlsproxy:latest .
 
-# Construir y subir a un registry
-docker buildx build --platform linux/amd64,linux/arm64 -t tu-usuario/hlsproxy:latest --push .
+# Build and push to a registry
+docker buildx build --platform linux/amd64,linux/arm64 -t your-user/hlsproxy:latest --push .
 ```
 
-#### Construcción para una plataforma específica
+#### Build for a specific platform
 ```bash
-# Solo para ARM64
+# ARM64 only
 docker buildx build --platform linux/arm64 -t hlsproxy:arm64 --load .
 
-# Solo para x86_64/AMD64
+# x86_64/AMD64 only
 docker buildx build --platform linux/amd64 -t hlsproxy:amd64 --load .
 ```
 
-### Ejecutar el contenedor
+### Running the container
 
-#### Usando imagen local
+#### Using local image
 ```bash
 docker run -d -p 38050:38050 -v $(pwd)/local.json:/opt/local.json hlsproxy
 ```
 
-#### Usando imagen de Docker Hub
+#### Using Docker Hub image
 ```bash
 docker run -d -p 38050:38050 -v $(pwd)/local.json:/opt/local.json jopsis/hlsproxy:latest
 ```
 
-## Notas de Seguridad
+## Security Notes
 
-**IMPORTANTE**: Antes de usar en producción, cambia los siguientes valores en `local.json`:
+**IMPORTANT**: Before using in production, change the following values in `local.json`:
 - `SERVER.password`
 - `SERVER.secret`

@@ -1,0 +1,14 @@
+services:
+   hlsproxy:
+    container_name: hlsproxy
+    image: jopsis/hlsproxy:latest
+    environment:
+      - port=38050
+    ports:
+      - 38050:38050
+    volumes:
+     - ./local.json:/opt/local.json
+     - ./plugins-custom:/opt/plugins-custom
+     - <path-to-your-ffmpeg-folder>:/opt/ffmpeg-custom
+    restart: unless-stopped
+    network_mode: "bridge"
